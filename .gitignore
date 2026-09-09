@@ -1,0 +1,67 @@
+# ==========================================
+# DMMGamePlayer-Wine .gitignore
+# ==========================================
+
+# Build & Extraction directories
+build/
+dist/
+extracted/
+target/
+_work/
+temp/
+tmp/
+
+# Downloaded binaries & MSVC artifacts
+*.exe
+*.msi
+*.7z
+*.zip
+*.tar.gz
+*.tar.xz
+*.tar.zst
+*.pdb
+*.ilk
+
+# Logs & Report files
+*.log
+*.log.*
+discovery-report.json
+release_notes.md
+
+# Cargo & Rust temporary files
+Cargo.lock.bak
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Wine Prefix / Runtime artifacts
+*.reg.bak
+*.reg.old
+.wine/
+.wine*/
+drive_c/
+system.reg
+user.reg
+userdef.reg
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

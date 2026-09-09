@@ -1,0 +1,63 @@
+#include <windows.h>
+#include <commctrl.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+129 DIALOGEX 0, 0, 300, 205
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DMM Game Player Setup"
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+FONT 8, "MS Shell Dlg"
+{
+    // Header & Version
+    CONTROL "DMM Game Player Setup", 1000, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 10, 8, 170, 11
+    CONTROL "Package: v5.5.19", 1001, "STATIC", SS_RIGHT | WS_CHILD | WS_VISIBLE | WS_GROUP, 190, 8, 100, 10
+    CONTROL "Target Status: Detecting...", 1002, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 10, 21, 280, 10
+
+    // Environment Diagnostics Box
+    CONTROL "Environment Diagnostics", 1003, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 8, 36, 284, 56
+    CONTROL "Runner: Detecting...", 1004, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 16, 49, 268, 10
+    CONTROL "Prefix: Detecting...", 1005, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 16, 62, 268, 10
+    CONTROL "Checks: Detecting...", 1006, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 16, 75, 268, 10
+
+    // Installation Directory Box
+    CONTROL "Installation Directory", 1007, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 8, 98, 284, 38
+    CONTROL "C:\\Program Files\\DMMGamePlayer", 1008, "EDIT", ES_LEFT | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 16, 112, 210, 14
+    CONTROL "Browse...", 1009, "BUTTON", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 232, 112, 52, 14
+
+    // Status message & Progress Bar
+    CONTROL "Ready to install.", 1010, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE, 10, 142, 280, 10
+    CONTROL "", 1011, "msctls_progress32", WS_CHILD | WS_VISIBLE | WS_BORDER, 10, 155, 280, 13
+
+    // Action Buttons
+    CONTROL "Install / Update", 1012, "BUTTON", BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 178, 80, 16
+    CONTROL "Repair Registry", 1013, "BUTTON", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 110, 178, 80, 16
+    CONTROL "Uninstall", 1014, "BUTTON", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 200, 178, 80, 16
+}
+
+107 ICON "dmm.ico"
+
+1 VERSIONINFO
+FILEVERSION 5,5,19,0
+PRODUCTVERSION 5,5,19,0
+FILEOS 0x40004
+FILETYPE 0x1
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "000004b0"
+        {
+            VALUE "ProductName", "DMM Game Player Setup"
+            VALUE "FileVersion", "5.5.19"
+            VALUE "FileDescription", "DMM Game Player Setup"
+            VALUE "ProductVersion", "5.5.19"
+        }
+    }
+
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x0000 0x04B0
+    }
+}
+
+1 RT_MANIFEST "installer.manifest"

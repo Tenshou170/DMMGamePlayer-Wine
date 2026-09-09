@@ -1,0 +1,47 @@
+{
+  "app_guid": "4f611540-42ad-5bdd-87fd-c415b0bdbb3e",
+  "protocol": "dmmgameplayer",
+  "sdk_port": "14603",
+  "client_deadline": "30000",
+  "expected_registry_keys": [
+    "HKEY_LOCAL_MACHINE\\Software\\DMM",
+    "HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\DMM",
+    "HKEY_LOCAL_MACHINE\\Software\\DMM GAMES\\Sdk\\Settings",
+    "HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\DMM GAMES\\Sdk\\Settings",
+    "HKEY_CURRENT_USER\\Software\\DMM GAMES\\Sdk\\Settings",
+    "HKEY_CLASSES_ROOT\\dmmgameplayer",
+    "HKEY_CURRENT_USER\\Software\\Classes\\dmmgameplayer",
+    "HKEY_LOCAL_MACHINE\\Software\\DMM GAMES\\Launcher\\Content",
+    "HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\DMM GAMES\\Launcher\\Content",
+    "HKEY_CURRENT_USER\\Software\\DMM GAMES\\Launcher\\Content",
+    "HKEY_CURRENT_USER\\Software\\4f611540-42ad-5bdd-87fd-c415b0bdbb3e",
+    "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\4f611540-42ad-5bdd-87fd-c415b0bdbb3e"
+  ],
+  "crucial_files": [
+    "DMMGamePlayer.exe",
+    "d3dcompiler_47.dll",
+    "ffmpeg.dll",
+    "icudtl.dat",
+    "v8_context_snapshot.bin",
+    "resources.pak",
+    "chrome_100_percent.pak",
+    "resources/app.asar",
+    "resources/cextend/windows_amd64_cex.dll"
+  ],
+  "known_binaries": [
+    "DMMGamePlayer.exe",
+    "Uninstall DMMGamePlayer.exe",
+    "DMMGamePlayer-Setup-Wine.exe",
+    "d3dcompiler_47.dll",
+    "dxcompiler.dll",
+    "dxil.dll",
+    "ffmpeg.dll",
+    "libEGL.dll",
+    "libGLESv2.dll",
+    "vk_swiftshader.dll",
+    "vulkan-1.dll",
+    "resources/GamesPlayAssist.exe",
+    "resources/elevate.exe",
+    "resources/cextend/windows_amd64_cex.dll"
+  ]
+}

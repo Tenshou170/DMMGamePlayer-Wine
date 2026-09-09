@@ -1,0 +1,149 @@
+name: Check & Build
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Check every week on Sunday at 00:00 UTC
+  workflow_dispatch:     # Manual trigger
+
+jobs:
+  check-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Step 1 - Check Upstream DMM Version
+        id: check_upstream
+        run: |
+          MANIFEST=$(curl -sSL https://dlapp-dmmgameplayer.games.dmm.com/latest.yml)
+          VERSION=$(echo "$MANIFEST" | grep "^version:" | awk '{print $2}' | tr -d '\r\n')
+          RELEASE_DATE=$(echo "$MANIFEST" | grep "^releaseDate:" | awk '{print $2}' | tr -d "'\r\n")
+
+          echo "Upstream DMM Latest Version: $VERSION (Released: $RELEASE_DATE)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "release_date=$RELEASE_DATE" >> $GITHUB_OUTPUT
+
+      - name: Step 2 - Check Against Existing Repository Tags
+        id: check_tags
+        run: |
+          VERSION="${{ steps.check_upstream.outputs.version }}"
+          git fetch --tags
+
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Version v$VERSION is already tagged and released in the repository. Skipping build."
+            echo "has_update=false" >> $GITHUB_OUTPUT
+          else
+            echo "New version detected: v$VERSION against existing repository tags."
+            echo "has_update=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install System Dependencies
+        if: steps.check_tags.outputs.has_update == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full curl jq python3 llvm clang
+
+      - name: Setup Rust Toolchain
+        if: steps.check_tags.outputs.has_update == 'true'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install cargo-xwin
+        if: steps.check_tags.outputs.has_update == 'true'
+        uses: taiki-e/install-action@cargo-xwin
+
+      - name: Step 3 - Update Version in Cargo.toml
+        if: steps.check_tags.outputs.has_update == 'true'
+        env:
+          VERSION: ${{ steps.check_upstream.outputs.version }}
+        run: |
+          python3 -c "
+          import os, re
+          ver = os.environ['VERSION']
+          with open('Cargo.toml', 'r') as f:
+              content = f.read()
+          content = re.sub(r'(?m)^version = \".*\"', f'version = \"{ver}\"', content, count=1)
+          with open('Cargo.toml', 'w') as f:
+              f.write(content)
+          "
+          echo "Updated Cargo.toml to version $VERSION"
+
+      - name: Step 4 - Download & Build Package
+        if: steps.check_tags.outputs.has_update == 'true'
+        run: |
+          VERSION="${{ steps.check_upstream.outputs.version }}"
+          bash scripts/build.sh "$VERSION"
+
+      - name: Step 5 - Generate Release Notes
+        if: steps.check_tags.outputs.has_update == 'true'
+        id: release_notes
+        run: |
+          VERSION="${{ steps.check_upstream.outputs.version }}"
+          REPORT="dist/v${VERSION}/discovery-report.json"
+
+          PORT=$(jq -r '.sdk_port // "14603"' "$REPORT")
+          GUID=$(jq -r '.guid // "4f611540-42ad-5bdd-87fd-c415b0bdbb3e"' "$REPORT")
+
+          cat << EONOTE > dist/release_notes.md
+          ## DMM Game Player v${VERSION} (Wine/Proton Native Setup)
+
+          Automated repack and Wine/Proton setup wizard for official DMM Game Player **v${VERSION}** (Released: \`${{ steps.check_upstream.outputs.release_date }}\`).
+
+          ### Technical Architecture
+          - **Native Win32 Setup Wizard (`DMMGamePlayer-Setup-Wine-${VERSION}.exe`):** Built with Rust targeting \`x86_64-pc-windows-msvc\`. Runs natively inside any Wine or Proton prefix to verify environment health and configure registry keys directly without brittle external host probing.
+          - **Bypasses Broken NSIS & PowerShell Hooks:** Completely replaces the upstream NSIS installer that deadlocks under Wine due to CIM cmdlet (\`Get-CimInstance\`) and dual-process UAC requirements.
+          - **Registry & Protocol Configuration:** Automatically configures SDK gRPC settings (\`server_port: ${PORT}\`), scheme handler (\`dmmgameplayer://\`), and uninstall entries.
+          - **App GUID:** \`${GUID}\`
+
+          ### Installation
+          #### Recommended: Setup Wizard (GUI / CLI)
+          1. Download \`DMMGamePlayer-Setup-Wine-${VERSION}.exe\` or extract \`DMMGamePlayer-v${VERSION}-portable.zip\`.
+          2. Execute the setup executable inside your target Wine / Proton prefix:
+             - **Bottles:** Select bottle -> "Run Executable" -> select \`DMMGamePlayer-Setup-Wine-${VERSION}.exe\`.
+             - **Lutris:** Select game configuration -> "Run EXE inside Wine prefix" -> select \`DMMGamePlayer-Setup-Wine-${VERSION}.exe\`.
+             - **Wine / Shell:**
+               \`\`\`bash
+               WINEPREFIX="/path/to/prefix" wine DMMGamePlayer-Setup-Wine-${VERSION}.exe
+               \`\`\`
+          3. Follow the graphical setup wizard or use CLI commands (\`install\`, \`repair-reg\`, \`diagnostics\`, \`uninstall\`).
+
+          ### Upstream Information & Changelog
+          - **Official DMM Game Player Changelog & Notices:** https://support.dmm.com/games/subcategory/770
+          - **Official DMM Game Player Portal:** https://player.games.dmm.com/
+          - **Upstream Version Feed:** https://dlapp-dmmgameplayer.games.dmm.com/latest.yml
+          EONOTE
+
+      - name: Step 6 - Publish GitHub Release
+        if: steps.check_tags.outputs.has_update == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ steps.check_upstream.outputs.version }}"
+          name: "DMMGamePlayer v${{ steps.check_upstream.outputs.version }}"
+          body_path: dist/release_notes.md
+          files: |
+            dist/v${{ steps.check_upstream.outputs.version }}/DMMGamePlayer-v${{ steps.check_upstream.outputs.version }}-portable.tar.gz
+            dist/v${{ steps.check_upstream.outputs.version }}/DMMGamePlayer-v${{ steps.check_upstream.outputs.version }}-portable.zip
+            dist/v${{ steps.check_upstream.outputs.version }}/DMMGamePlayer-Setup-Wine-${{ steps.check_upstream.outputs.version }}.exe
+            dist/v${{ steps.check_upstream.outputs.version }}/discovery-report.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Step 7 - Commit & Push Bumped Version to Repository
+        if: steps.check_tags.outputs.has_update == 'true'
+        run: |
+          VERSION="${{ steps.check_upstream.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml Cargo.lock
+          if git diff --cached --quiet; then
+            echo "No version changes to commit in source-code."
+          else
+            git commit -m "chore(release): bump version to v${VERSION} [skip ci]"
+            git push origin main
+          fi

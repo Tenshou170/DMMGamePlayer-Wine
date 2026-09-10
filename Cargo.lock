@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "DMMGamePlayer-Setup-Wine"
-version = "5.5.19"
+version = "5.5.20"
 dependencies = [
  "cc",
  "embed-resource",

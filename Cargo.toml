@@ -1,6 +1,6 @@
 [package]
 name = "DMMGamePlayer-Setup-Wine"
-version = "5.5.19"
+version = "5.5.20"
 edition = "2021"
 authors = ["tenshou170"]
 description = "Native Win32 setup wizard and registry configurator for DMM Game Player on Wine / Proton"

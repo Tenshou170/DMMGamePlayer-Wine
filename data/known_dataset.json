@@ -42,6 +42,7 @@
     "vulkan-1.dll",
     "resources/GamesPlayAssist.exe",
     "resources/elevate.exe",
-    "resources/cextend/windows_amd64_cex.dll"
+    "resources/cextend/windows_amd64_cex.dll",
+    "resources/app.asar.unpacked/dist/main/kamikaze-*.node"
   ]
 }

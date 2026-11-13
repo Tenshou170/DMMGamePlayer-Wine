@@ -14,6 +14,7 @@ import os
 import zlib
 import re
 import json
+import fnmatch
 from pathlib import Path
 
 def extract_nsis_header(installer_path):
@@ -206,7 +207,7 @@ def main():
         # Ignore our own uninstaller/installer if present
         if binary in ["Uninstall DMMGamePlayer.exe", "dmm_installer.exe", "DMMGamePlayer-Setup-Wine.exe"]:
             continue
-        if binary not in known_binaries_set:
+        if not any(binary == pat or fnmatch.fnmatch(binary, pat) for pat in known_binaries_set):
             conflicts.append({
                 "category": "New Binary Added",
                 "detail": f"Upstream payload added new binary executable or library: `{binary}`",
